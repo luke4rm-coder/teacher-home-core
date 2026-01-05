@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Quizlock – Teacher Dashboard</title>
+    <style>
+      body {
+        margin: 0;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        background: #f5f5f5;
+        color: #111827;
+        min-height: 100vh;
+      }
+      .app-shell {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+      /* Dark mode overrides */
+      body.dark-mode {
+        background: radial-gradient(circle at top left, #1f2937, #020617 55%);
+        color: #e5e7eb;
+      }
+      body.dark-mode .topbar {
+        border-bottom-color: #1f2933;
+        background: rgba(15, 23, 42, 0.95);
+      }
+      body.dark-mode .logo-text {
+        color: #e5e7eb;
+      }
+      body.dark-mode .card {
+        background: rgba(15, 23, 42, 0.98);
+        border-color: rgba(148, 163, 184, 0.2);
+        box-shadow: 0 18px 45px rgba(0, 0, 0, 0.5);
+      }
+      body.dark-mode h1,
+      body.dark-mode .subtitle {
+        color: #e5e7eb;
+      }
+      body.dark-mode table th {
+        background: #020617;
+      }
+      body.dark-mode table tr:nth-child(even) td {
+        background: rgba(15, 23, 42, 0.7);
+      }
+      body.dark-mode .badge-ok {
+        background: rgba(34, 197, 94, 0.12);
+        color: #bbf7d0;
+        border-color: rgba(34, 197, 94, 0.5);
+      }
+      body.dark-mode .badge-no {
+        background: rgba(248, 113, 113, 0.12);
+        color: #fecaca;
+        border-color: rgba(248, 113, 113, 0.6);
+      }
+      body.dark-mode .summary-row span {
+        background: rgba(15, 23, 42, 0.9);
+        border-color: rgba(148, 163, 184, 0.3);
+      }
+      .topbar {
+        height: 56px;
+        padding: 0 24px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border-bottom: 1px solid #e5e7eb;
+        background: #ffffff;
+      }
+      .topbar-left {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-weight: 600;
+      }
+      .logo-dot {
+        width: 20px;
+        height: 20px;
+        border-radius: 999px;
+        background: linear-gradient(135deg, #fb923c, #f97316);
+        box-shadow: 0 0 8px rgba(248, 148, 54, 0.6);
+      }
+      .logo-text {
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        font-size: 14px;
+        color: #111827;
+      }
+      .topbar-right {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 12px;
+        color: #6b7280;
+      }
+      .theme-toggle {
+        padding: 4px 10px;
+        border-radius: 999px;
+        border: 1px solid #e5e7eb;
+        background: #f9fafb;
+        color: #374151;
+        font-size: 11px;
+        cursor: pointer;
+      }
+      .theme-toggle:hover {
+        background: #f3f4f6;
+      }
+      .container {
+        max-width: 1000px;
+        margin: 24px auto;
+        padding: 0 24px 24px;
+      }
+      .card {
+        background: #ffffff;
+        border-radius: 16px;
+        border: 1px solid #e5e7eb;
+        box-shadow: 0 10px 25px rgba(15, 23, 42, 0.08);
+        padding: 18px 20px 20px;
+      }
+      h1 {
+        margin: 0 0 4px;
+        font-size: 22px;
+      }
+      .subtitle {
+        margin: 0 0 16px;
+        font-size: 13px;
+        color: #9ca3af;
+      }
+      #loadBtn {
+        margin-top: 4px;
+        padding: 8px 16px;
+        border-radius: 999px;
+        border: none;
+        background: linear-gradient(135deg, #fb923c, #f97316);
+        color: #ffffff;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        box-shadow: 0 10px 24px rgba(248, 148, 54, 0.4);
+      }
+      #loadBtn:hover {
+        box-shadow: 0 14px 30px rgba(248, 148, 54, 0.55);
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 16px;
+        font-size: 13px;
+      }
+      th,
+      td {
+        border-bottom: 1px solid #e5e7eb;
+        padding: 6px 8px;
+        text-align: left;
+      }
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 2px 8px;
+        border-radius: 999px;
+        font-size: 11px;
+      }
+      .badge-ok {
+        background: rgba(251, 191, 36, 0.15);
+        color: #92400e;
+        border: 1px solid rgba(245, 158, 11, 0.8);
+      }
+      .badge-no {
+        background: rgba(248, 113, 113, 0.12);
+        color: #b91c1c;
+        border: 1px solid rgba(248, 113, 113, 0.6);
+      }
+      .summary-row {
+        display: flex;
+        gap: 16px;
+        margin-top: 14px;
+        font-size: 13px;
+        color: #9ca3af;
+      }
+      .summary-row span {
+        padding: 4px 10px;
+        border-radius: 999px;
+        background: #fff7ed;
+        border: 1px solid #fed7aa;
+      }
+      th {
+        background: #f9fafb;
+        font-weight: 600;
+      }
+      tr:nth-child(even) td {
+        background: #f3f4f6;
+      }
+      .error {
+        color: #fb7185;
+        margin-top: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <div class="topbar-left">
+          <span class="logo-dot"></span>
+          <span class="logo-text">Quizlock</span>
+        </div>
+        <div class="topbar-right">
+          <span>Teacher dashboard</span>
+          <button id="themeToggle" class="theme-toggle">Dark mode</button>
+        </div>
+      </header>
+
+      <div class="container">
+        <div class="card">
+          <h1>Quizlock Teacher Dashboard</h1>
+          <p class="subtitle">
+            This page expects a backend API with <code>/submitQuiz</code> and <code>/stats</code>.
+          </p>
+          <p class="subtitle">
+            Live stats for all recorded quiz attempts.
+          </p>
+
+          <div id="error" class="error"></div>
+
+          <!-- Teacher-managed questions editor (no AI) -->
+          <div style="margin-top: 16px; padding-top: 12px; border-top: 1px solid #e5e7eb; font-size: 13px;">
+            <h2 style="margin: 0 0 6px; font-size: 16px;">Manage quiz questions</h2>
+            <p style="margin: 0 0 8px; color: #9ca3af;">
+              These questions are used on the student check-in page. Edit them here and click "Save questions".
+            </p>
+            <div style="margin-bottom: 8px; display: flex; gap: 8px; align-items: center;">
+              <button
+                id="loadQuestionsBtn"
+                style="padding: 6px 12px; border-radius: 999px; border: none; background: #e5e7eb; font-size: 12px; cursor: pointer;"
+              >
+                Load current questions
+              </button>
+              <span style="font-size: 12px; color: #9ca3af;">(Pulled from backend)</span>
+            </div>
+            <textarea
+              id="questionsJson"
+              rows="8"
+              style="width: 100%; padding: 8px 10px; border-radius: 8px; border: 1px solid #d1d5db; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace; font-size: 12px; resize: vertical;"
+              placeholder='[{"text":"1) Question text...","options":["A","B","C","D"],"correctIndex":1}]'
+            ></textarea>
+            <div style="margin-top: 6px; display: flex; gap: 8px; align-items: center; font-size: 12px;">
+              <button
+                id="saveQuestionsBtn"
+                style="margin-left: auto; padding: 6px 12px; border-radius: 999px; border: none; background: linear-gradient(135deg, #fb923c, #f97316); color: #ffffff; font-size: 12px; font-weight: 600; cursor: pointer; box-shadow: 0 6px 16px rgba(248, 148, 54, 0.45);"
+              >
+                Save questions
+              </button>
+            </div>
+            <div id="questionsEditorStatus" style="margin-top: 4px; font-size: 12px; color: #9ca3af;"></div>
+          </div>
+
+          <div class="summary-row" id="summaryRow" style="display: none">
+            <span id="summaryAttempts">Attempts: 0</span>
+            <span id="summaryStudents">Students: 0</span>
+            <span id="summaryAverage">Average score: 0%</span>
+          </div>
+
+          <table id="statsTable" style="display: none">
+        <thead>
+          <tr>
+            <th>Student</th>
+            <th>Score</th>
+            <th>Total Questions</th>
+            <th>Unlocked</th>
+            <th>Time</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+    <script>
+      // CHANGE THIS to your real backend base URL
+      // For local testing with the provided Node server, use:
+      //   http://localhost:4000
+      const API_BASE = "http://localhost:4000";
+
+      async function loadQuestionsIntoEditor() {
+        const statusEl = document.getElementById("questionsEditorStatus");
+        const textarea = document.getElementById("questionsJson");
+        if (!textarea || !statusEl) return;
+
+        statusEl.textContent = "Loading questions...";
+        try {
+          const res = await fetch(`${API_BASE}/questions`);
+          if (!res.ok) {
+            throw new Error("Server error: " + res.status);
+          }
+          const data = await res.json();
+          textarea.value = JSON.stringify(data, null, 2);
+          statusEl.textContent = "Loaded questions from backend.";
+        } catch (err) {
+          console.error(err);
+          statusEl.textContent = "Failed to load questions. Ask IT to check the backend.";
+        }
+      }
+
+      async function saveQuestionsFromEditor() {
+        const statusEl = document.getElementById("questionsEditorStatus");
+        const textarea = document.getElementById("questionsJson");
+        if (!textarea || !statusEl) return;
+
+        let parsed;
+        try {
+          parsed = JSON.parse(textarea.value);
+        } catch (err) {
+          statusEl.textContent = "The questions text is not valid JSON.";
+          return;
+        }
+
+        statusEl.textContent = "Saving questions...";
+        try {
+          const res = await fetch(`${API_BASE}/questions`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ questions: parsed }),
+          });
+
+          if (!res.ok) {
+            const errText = await res.text();
+            throw new Error(`Server error (${res.status}): ${errText}`);
+          }
+
+          statusEl.textContent = "Saved. Students will see these questions on their next load.";
+        } catch (err) {
+          console.error(err);
+          statusEl.textContent = "Failed to save questions. Ask IT to check the backend.";
+        }
+      }
+
+      function applySavedTheme() {
+        const saved = localStorage.getItem("quizlock-teacher-theme");
+        if (saved === "dark") {
+          document.body.classList.add("dark-mode");
+        }
+      }
+
+      function setupThemeToggle() {
+        const btn = document.getElementById("themeToggle");
+        if (!btn) return;
+        btn.addEventListener("click", () => {
+          document.body.classList.toggle("dark-mode");
+          const isDark = document.body.classList.contains("dark-mode");
+          localStorage.setItem("quizlock-teacher-theme", isDark ? "dark" : "light");
+        });
+      }
+
+      async function loadStats() {
+        const errorEl = document.getElementById("error");
+        const table = document.getElementById("statsTable");
+        const tbody = table.querySelector("tbody");
+        errorEl.textContent = "";
+
+        try {
+          const res = await fetch(`${API_BASE}/stats`);
+          if (!res.ok) {
+            throw new Error("Server error: " + res.status);
+          }
+          const data = await res.json();
+          // expected format: array of { studentName, score, totalQuestions, unlocked, timestamp }
+          tbody.innerHTML = "";
+
+          // Compute simple summary
+          const attempts = data.length;
+          const studentsSet = new Set();
+          let totalScore = 0;
+          let totalPossible = 0;
+
+          data.forEach((row) => {
+            if (row.studentName) studentsSet.add(row.studentName);
+            totalScore += Number(row.score || 0);
+            totalPossible += Number(row.totalQuestions || 0);
+
+            const tr = document.createElement("tr");
+            const date = new Date(row.timestamp);
+            const unlockedBadge = row.unlocked
+              ? '<span class="badge badge-ok">Unlocked</span>'
+              : '<span class="badge badge-no">Locked</span>';
+            tr.innerHTML = `
+              <td>${row.studentName || ""}</td>
+              <td>${row.score}</td>
+              <td>${row.totalQuestions}</td>
+              <td>${unlockedBadge}</td>
+              <td>${date.toLocaleString()}</td>
+            `;
+            tbody.appendChild(tr);
+          });
+
+          if (attempts > 0) {
+            const avgPercent = totalPossible > 0 ? Math.round((totalScore / totalPossible) * 100) : 0;
+            document.getElementById("summaryAttempts").textContent = `Attempts: ${attempts}`;
+            document.getElementById("summaryStudents").textContent = `Students: ${studentsSet.size}`;
+            document.getElementById("summaryAverage").textContent = `Average score: ${avgPercent}%`;
+            document.getElementById("summaryRow").style.display = "flex";
+          } else {
+            document.getElementById("summaryRow").style.display = "none";
+          }
+
+          table.style.display = "";
+        } catch (err) {
+          console.error(err);
+          errorEl.textContent = "Failed to load stats. Ask IT to check the backend.";
+        }
+      }
+
+      window.addEventListener("DOMContentLoaded", () => {
+        applySavedTheme();
+        setupThemeToggle();
+        loadStats();
+
+        const loadBtn = document.getElementById("loadQuestionsBtn");
+        if (loadBtn) {
+          loadBtn.addEventListener("click", loadQuestionsIntoEditor);
+        }
+        const saveBtn = document.getElementById("saveQuestionsBtn");
+        if (saveBtn) {
+          saveBtn.addEventListener("click", saveQuestionsFromEditor);
+        }
+      });
+    </script>
+  </body>
+</html>
